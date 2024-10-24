@@ -5,7 +5,7 @@ from ultralytics import YOLO
 model = YOLO("yolov8n-seg.pt") 
 
 video_path = "peoplecount1.mp4"
-cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(0)
 
 ret, frame = cap.read()
 heatmap = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.float32)
@@ -13,9 +13,6 @@ heatmap = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.float32)
 alpha = 0.6
 cooling_rate = 0.02 
 heat_increase = 0.5  
-
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('output_video.mp4', fourcc, 20.0, (frame.shape[1], frame.shape[0]))
 
 while True:
     ret, frame = cap.read()
@@ -42,11 +39,9 @@ while True:
     overlay = cv2.addWeighted(heatmap_color, alpha, frame, 1 - alpha, 0)
 
     cv2.imshow('Heatmap', overlay)
-    out.write(overlay)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
-out.release()
 cv2.destroyAllWindows()
