@@ -14,7 +14,9 @@ alpha = 0.6
 cooling_rate = 0.02 
 heat_increase = 0.5  
 
+# Crear ventana en Linux y establecer pantalla completa
 cv2.namedWindow('Heatmap', cv2.WND_PROP_FULLSCREEN)
+cv2.setWindowProperty('Heatmap', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
 cv2.setWindowProperty('Heatmap', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 while True:
