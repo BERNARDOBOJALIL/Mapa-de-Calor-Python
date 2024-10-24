@@ -7,7 +7,7 @@ model = YOLO("yolov8n-seg.pt")
 cap = cv2.VideoCapture(0)
 
 ret, frame = cap.read()
-heatmap = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.float32)
+heatmap = np.zeros((1080, 1920), dtype=np.float32)  # Fijar el tamaño del heatmap a 1080x1920
 
 alpha = 0.6
 cooling_rate = 0.02 
@@ -21,10 +21,8 @@ while True:
     if not ret:
         break
 
-    screen_width = cv2.getWindowImageRect('Heatmap')[2]
-    screen_height = cv2.getWindowImageRect('Heatmap')[3]
-
-    frame_resized = cv2.resize(frame, (screen_width, screen_height))
+    # Redimensionar el frame a 1080x1920
+    frame_resized = cv2.resize(frame, (1920, 1080))
 
     results = model(frame_resized)[0]
 
@@ -34,7 +32,7 @@ while True:
 
         for i, mask in enumerate(masks):
             if int(classes[i]) == 0:  
-                mask_resized = cv2.resize(mask, (screen_width, screen_height))  
+                mask_resized = cv2.resize(mask, (1920, 1080))  
                 heatmap += (mask_resized.astype(np.float32) * heat_increase)  
 
     heatmap = np.maximum(heatmap - (cooling_rate * heatmap), 0)
@@ -52,3 +50,4 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
