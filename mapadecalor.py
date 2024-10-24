@@ -4,7 +4,6 @@ from ultralytics import YOLO
 
 model = YOLO("yolov8n-seg.pt") 
 
-video_path = "peoplecount1.mp4"
 cap = cv2.VideoCapture(0)
 
 ret, frame = cap.read()
@@ -14,9 +13,7 @@ alpha = 0.6
 cooling_rate = 0.02 
 heat_increase = 0.5  
 
-# Crear ventana en Linux y establecer pantalla completa
 cv2.namedWindow('Heatmap', cv2.WND_PROP_FULLSCREEN)
-cv2.setWindowProperty('Heatmap', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
 cv2.setWindowProperty('Heatmap', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 while True:
@@ -24,7 +21,12 @@ while True:
     if not ret:
         break
 
-    results = model(frame)[0]
+    screen_width = cv2.getWindowImageRect('Heatmap')[2]
+    screen_height = cv2.getWindowImageRect('Heatmap')[3]
+
+    frame_resized = cv2.resize(frame, (screen_width, screen_height))
+
+    results = model(frame_resized)[0]
 
     if results.masks is not None:  
         masks = results.masks.data.cpu().numpy()  
@@ -32,7 +34,7 @@ while True:
 
         for i, mask in enumerate(masks):
             if int(classes[i]) == 0:  
-                mask_resized = cv2.resize(mask, (frame.shape[1], frame.shape[0]))  
+                mask_resized = cv2.resize(mask, (screen_width, screen_height))  
                 heatmap += (mask_resized.astype(np.float32) * heat_increase)  
 
     heatmap = np.maximum(heatmap - (cooling_rate * heatmap), 0)
@@ -41,7 +43,7 @@ while True:
 
     heatmap_color = cv2.applyColorMap(heatmap_normalized.astype(np.uint8), cv2.COLORMAP_JET)
 
-    overlay = cv2.addWeighted(heatmap_color, alpha, frame, 1 - alpha, 0)
+    overlay = cv2.addWeighted(heatmap_color, alpha, frame_resized, 1 - alpha, 0)
 
     cv2.imshow('Heatmap', overlay)
 
