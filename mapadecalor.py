@@ -4,7 +4,7 @@ from ultralytics import YOLO
 
 model = YOLO("yolov8n-seg.pt") 
 
-video_path = "6387-191695740_small.mp4"
+video_path = "peoplecount1.mp4"
 cap = cv2.VideoCapture(video_path)
 
 ret, frame = cap.read()
@@ -26,10 +26,12 @@ while True:
 
     if results.masks is not None:  
         masks = results.masks.data.cpu().numpy()  
+        classes = results.boxes.cls.cpu().numpy()  
 
-        for mask in masks:
-            mask_resized = cv2.resize(mask, (frame.shape[1], frame.shape[0]))  
-            heatmap += (mask_resized.astype(np.float32) * heat_increase)  
+        for i, mask in enumerate(masks):
+            if int(classes[i]) == 0:  
+                mask_resized = cv2.resize(mask, (frame.shape[1], frame.shape[0]))  
+                heatmap += (mask_resized.astype(np.float32) * heat_increase)  
 
     heatmap = np.maximum(heatmap - (cooling_rate * heatmap), 0)
 
