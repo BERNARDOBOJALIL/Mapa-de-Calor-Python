@@ -4,8 +4,16 @@ from ultralytics import YOLO
 
 model = YOLO("yolov8n-seg.pt") 
 
-cap = cv2.VideoCapture(0)
 
+rtsp_url = "rtsp://Sistemas:liar3-c4m@172.18.140.29:554/stream1"
+
+model = YOLO("yolov8n-seg.pt") 
+
+cap = cv2.VideoCapture(rtsp_url)
+
+if not cap.isOpened():
+    print("Error: No se pudo conectar a la cámara TAPO")
+    exit()
 ret, frame = cap.read()
 heatmap = np.zeros((1080, 1920), dtype=np.float32)  # Fijar el tamaño del heatmap a 1080x1920
 
@@ -50,4 +58,3 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-
